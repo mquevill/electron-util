@@ -1,5 +1,5 @@
 'use strict';
-const api = require('./api');
+const {shell} = require('electron');
 const is = require('./is');
 
 module.exports = async (pane, section) => {
@@ -7,5 +7,5 @@ module.exports = async (pane, section) => {
 		return;
 	}
 
-	await api.shell.openExternal(`x-apple.systempreferences:com.apple.preference.${pane}${section ? `?${section}` : ''}`);
+	await shell.openExternal(`x-apple.systempreferences:com.apple.preference.${pane}${section ? `?${section}` : ''}`);
 };

@@ -5,10 +5,6 @@ const electron = require('electron');
 const newGithubIssueUrl = require('new-github-issue-url');
 const node = require('./node');
 
-const api = require('./source/api');
-
-exports.api = api;
-
 const is = require('./source/is');
 
 exports.is = is;
@@ -43,7 +39,7 @@ exports.fixPathForAsarUnpack = node.fixPathForAsarUnpack;
 
 exports.enforceMacOSAppLocation = require('./source/enforce-macos-app-location');
 
-exports.menuBarHeight = () => is.macos ? api.screen.getPrimaryDisplay().workArea.y : 0;
+exports.menuBarHeight = () => is.macos ? electron.screen.getPrimaryDisplay().workArea.y : 0;
 
 exports.getWindowBoundsCentered = options => {
 	options = {
@@ -51,12 +47,9 @@ exports.getWindowBoundsCentered = options => {
 		...options
 	};
 
-	const currentDisplay = api.screen.getDisplayNearestPoint(api.screen.getCursorScreenPoint());
 	const [width, height] = options.window.getSize();
 	const windowSize = options.size || {width, height};
-	const screenSize = options.useFullBounds ?
-		currentDisplay.bounds :
-		currentDisplay.workArea;
+	const screenSize = electron.screen.getDisplayNearestPoint(electron.screen.getCursorScreenPoint()).workArea;
 	const x = Math.floor(screenSize.x + ((screenSize.width / 2) - (windowSize.width / 2)));
 	const y = Math.floor(((screenSize.height + screenSize.y) / 2) - (windowSize.height / 2));
 
@@ -96,7 +89,7 @@ exports.appLaunchTimestamp = Date.now();
 if (is.main) {
 	const isFirstAppLaunch = () => {
 		const fs = require('fs');
-		const checkFile = path.join(api.app.getPath('userData'), '.electron-util--has-app-launched');
+		const checkFile = path.join(electron.app.getPath('userData'), '.electron-util--has-app-launched');
 
 		if (fs.existsSync(checkFile)) {
 			return false;
@@ -106,7 +99,7 @@ if (is.main) {
 			fs.writeFileSync(checkFile, '');
 		} catch (error) {
 			if (error.code === 'ENOENT') {
-				fs.mkdirSync(api.app.getPath('userData'));
+				fs.mkdirSync(electron.app.getPath('userData'));
 				return isFirstAppLaunch();
 			}
 		}
@@ -123,7 +116,7 @@ exports.darkMode = {
 			return false;
 		}
 
-		return api.nativeTheme.shouldUseDarkColors;
+		return electron.nativeTheme.shouldUseDarkColors;
 	},
 
 	onChange(callback) {
@@ -135,16 +128,16 @@ exports.darkMode = {
 			callback();
 		};
 
-		api.nativeTheme.on('updated', handler);
+		electron.nativeTheme.on('updated', handler);
 
 		return () => {
-			api.nativeTheme.off(handler);
+			electron.nativeTheme.off(handler);
 		};
 	}
 };
 
 exports.setContentSecurityPolicy = async (policy, options) => {
-	await api.app.whenReady();
+	await electron.app.whenReady();
 
 	if (!policy.split('\n').filter(line => line.trim()).every(line => line.endsWith(';'))) {
 		throw new Error('Each line must end in a semicolon');
@@ -153,7 +146,7 @@ exports.setContentSecurityPolicy = async (policy, options) => {
 	policy = policy.replace(/[\t\n]/g, '').trim();
 
 	options = {
-		session: api.session.defaultSession,
+		session: electron.session.defaultSession,
 		...options
 	};
 
@@ -169,7 +162,7 @@ exports.setContentSecurityPolicy = async (policy, options) => {
 
 exports.openNewGitHubIssue = options => {
 	const url = newGithubIssueUrl(options);
-	api.shell.openExternal(url);
+	electron.shell.openExternal(url);
 };
 
 exports.openUrlMenuItem = (options = {}) => {
@@ -185,7 +178,7 @@ exports.openUrlMenuItem = (options = {}) => {
 			options.click(...args);
 		}
 
-		api.shell.openExternal(url);
+		electron.shell.openExternal(url);
 	};
 
 	return {
@@ -210,10 +203,10 @@ exports.showAboutWindow = (options = {}) => {
 				delete aboutPanelOptions.icon;
 			}
 
-			api.app.setAboutPanelOptions(aboutPanelOptions);
+			electron.app.setAboutPanelOptions(aboutPanelOptions);
 		}
 
-		api.app.showAboutPanel();
+		electron.app.showAboutPanel();
 
 		return;
 	}
@@ -223,25 +216,22 @@ exports.showAboutWindow = (options = {}) => {
 		...options
 	};
 
-	// TODO: Make this just `api.app.name` when targeting Electron 7.
-	const appName = 'name' in api.app ? api.app.name : api.app.getName();
+	// TODO: Make this just `electron.app.name` when targeting Electron 7.
+	const appName = 'name' in electron.app ? electron.app.name : electron.app.getName();
 
 	const text = options.text ? `${options.copyright ? '\n\n' : ''}${options.text}` : '';
 
-	api.dialog.showMessageBox(
-		activeWindow(),
-		{
-			title: `${options.title} ${appName}`,
-			message: `Version ${api.app.getVersion()}`,
-			detail: (options.copyright || '') + text,
-			icon: options.icon,
+	electron.dialog.showMessageBox({
+		title: `${options.title} ${appName}`,
+		message: `Version ${electron.app.getVersion()}`,
+		detail: (options.copyright || '') + text,
+		icon: options.icon,
 
-			// This is needed for Linux, since at least Ubuntu does not show a close button
-			buttons: [
-				'OK'
-			]
-		}
-	);
+		// This is needed for Linux, since at least Ubuntu does not show a close button
+		buttons: [
+			'OK'
+		]
+	});
 };
 
 exports.aboutMenuItem = (options = {}) => {
@@ -254,7 +244,7 @@ exports.aboutMenuItem = (options = {}) => {
 	// handle the macOS case here, so the user doesn't need a conditional
 	// when used in a cross-platform app
 
-	const appName = 'name' in api.app ? api.app.name : api.app.getName();
+	const appName = 'name' in electron.app ? electron.app.name : electron.app.getName();
 
 	return {
 		label: `${options.title} ${appName}`,
@@ -265,10 +255,10 @@ exports.aboutMenuItem = (options = {}) => {
 };
 
 exports.debugInfo = () => `
-${'name' in api.app ? api.app.name : api.app.getName()} ${api.app.getVersion()}
+${'name' in electron.app ? electron.app.name : electron.app.getName()} ${electron.app.getVersion()}
 Electron ${exports.electronVersion}
 ${process.platform} ${os.release()}
-Locale: ${api.app.getLocale()}
+Locale: ${electron.app.getLocale()}
 `.trim();
 
 exports.appMenu = (menuItems = []) => {
@@ -276,7 +266,7 @@ exports.appMenu = (menuItems = []) => {
 	// handle the macOS case here, so the user doesn't need a conditional
 	// when used in a cross-platform app
 
-	const appName = 'name' in api.app ? api.app.name : api.app.getName();
+	const appName = 'name' in electron.app ? electron.app.name : electron.app.getName();
 
 	return {
 		label: appName,
