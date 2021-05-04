@@ -11,8 +11,10 @@ exports.is = is;
 
 exports.electronVersion = node.electronVersion;
 
+// TODO: Move to main
 exports.chromeVersion = process.versions.chrome.replace(/\.\d+$/, '');
 
+// TODO: Move to shared
 exports.platform = object => {
 	let {platform} = process;
 
@@ -27,20 +29,26 @@ exports.platform = object => {
 	return typeof fn === 'function' ? fn() : fn;
 };
 
+// TODO: Move to main?
 const activeWindow = () => is.main ?
 	electron.BrowserWindow.getFocusedWindow() :
 	electron.remote.getCurrentWindow();
 
 exports.activeWindow = activeWindow;
 
+// TODO: Move to shared? (webFrame)
 exports.runJS = (code, win = activeWindow()) => win.webContents.executeJavaScript(code);
 
+// TODO: Move to main
 exports.fixPathForAsarUnpack = node.fixPathForAsarUnpack;
 
+// TODO: Move to main
 exports.enforceMacOSAppLocation = require('./source/enforce-macos-app-location');
 
+// TODO: Move to main
 exports.menuBarHeight = () => is.macos ? electron.screen.getPrimaryDisplay().workArea.y : 0;
 
+// TODO: Move to main
 exports.getWindowBoundsCentered = options => {
 	options = {
 		window: activeWindow(),
@@ -61,6 +69,7 @@ exports.getWindowBoundsCentered = options => {
 	};
 };
 
+// TODO: Move to main
 exports.centerWindow = options => {
 	options = {
 		window: activeWindow(),
@@ -72,6 +81,7 @@ exports.centerWindow = options => {
 	options.window.setBounds(bounds, options.animated);
 };
 
+// TODO: Move to shared? (webFrame)
 exports.disableZoom = (win = activeWindow()) => {
 	const {webContents} = win;
 
@@ -84,8 +94,10 @@ exports.disableZoom = (win = activeWindow()) => {
 	run();
 };
 
+// TODO: Move to shared
 exports.appLaunchTimestamp = Date.now();
 
+// TODO: Move to main
 if (is.main) {
 	const isFirstAppLaunch = () => {
 		const fs = require('fs');
@@ -110,6 +122,7 @@ if (is.main) {
 	exports.isFirstAppLaunch = isFirstAppLaunch;
 }
 
+// TODO: Move to main
 exports.darkMode = {
 	get isEnabled() {
 		if (!is.macos) {
@@ -136,6 +149,7 @@ exports.darkMode = {
 	}
 };
 
+// TODO: Move to main
 exports.setContentSecurityPolicy = async (policy, options) => {
 	await electron.app.whenReady();
 
@@ -160,11 +174,13 @@ exports.setContentSecurityPolicy = async (policy, options) => {
 	});
 };
 
+// TODO: Move to shared
 exports.openNewGitHubIssue = options => {
 	const url = newGithubIssueUrl(options);
 	electron.shell.openExternal(url);
 };
 
+// TODO: Move to shared
 exports.openUrlMenuItem = (options = {}) => {
 	if (!options.url) {
 		throw new Error('The `url` option is required');
@@ -187,6 +203,7 @@ exports.openUrlMenuItem = (options = {}) => {
 	};
 };
 
+// TODO: Move to main
 exports.showAboutWindow = (options = {}) => {
 	if (!is.windows) {
 		if (
@@ -234,6 +251,7 @@ exports.showAboutWindow = (options = {}) => {
 	});
 };
 
+// TODO: Move to main
 exports.aboutMenuItem = (options = {}) => {
 	options = {
 		title: 'About',
@@ -254,6 +272,7 @@ exports.aboutMenuItem = (options = {}) => {
 	};
 };
 
+// TODO: Move to main
 exports.debugInfo = () => `
 ${'name' in electron.app ? electron.app.name : electron.app.getName()} ${electron.app.getVersion()}
 Electron ${exports.electronVersion}
@@ -261,6 +280,7 @@ ${process.platform} ${os.release()}
 Locale: ${electron.app.getLocale()}
 `.trim();
 
+// TODO: Move to main
 exports.appMenu = (menuItems = []) => {
 	// TODO: When https://github.com/electron/electron/issues/15589 is fixed,
 	// handle the macOS case here, so the user doesn't need a conditional
@@ -306,6 +326,7 @@ exports.appMenu = (menuItems = []) => {
 	};
 };
 
+// TODO: Move to shared
 exports.openSystemPreferences = require('./source/open-system-preferences');
 
 // TODO: Move more of the larger methods here into separate files.
