@@ -205,50 +205,37 @@ exports.openUrlMenuItem = (options = {}) => {
 
 // TODO: Move to main
 exports.showAboutWindow = (options = {}) => {
-	if (!is.windows) {
-		if (
-			options.copyright ||
-			(is.linux && options.icon) ||
-			(is.linux && options.website)
-		) {
-			const aboutPanelOptions = {
-				copyright: options.copyright
-			};
+	// TODO: When https://github.com/electron/electron/issues/18918 is fixed,
+	// these defaults should not need to be set for Linux.
+	// TODO: The defaults are standardized here, instead of being set in
+	// Electron when https://github.com/electron/electron/issues/23851 is fixed.
 
-			if (is.linux && options.icon) {
-				aboutPanelOptions.iconPath = options.icon;
-				delete aboutPanelOptions.icon;
-			}
+	const appName = electron.app.getName();
+	const appVersion = electron.app.getVersion();
 
-			electron.app.setAboutPanelOptions(aboutPanelOptions);
-		}
-
-		electron.app.showAboutPanel();
-
-		return;
-	}
-
-	options = {
-		title: 'About',
-		...options
+	const aboutPanelOptions = {
+		applicationName: appName,
+		applicationVersion: appVersion
 	};
 
-	// TODO: Make this just `electron.app.name` when targeting Electron 7.
-	const appName = 'name' in electron.app ? electron.app.name : electron.app.getName();
+	if (options.icon) {
+		aboutPanelOptions.iconPath = options.icon;
+	}
 
-	const text = options.text ? `${options.copyright ? '\n\n' : ''}${options.text}` : '';
+	if (options.copyright) {
+		aboutPanelOptions.copyright = options.copyright;
+	}
 
-	electron.dialog.showMessageBox({
-		title: `${options.title} ${appName}`,
-		message: `Version ${electron.app.getVersion()}`,
-		detail: (options.copyright || '') + text,
-		icon: options.icon,
+	if (options.text) {
+		aboutPanelOptions.copyright = (options.copyright || '') + '\n\n' + options.text;
+	}
 
-		// This is needed for Linux, since at least Ubuntu does not show a close button
-		buttons: [
-			'OK'
-		]
-	});
+	if (options.website) {
+		aboutPanelOptions.website = options.website;
+	}
+
+	electron.app.setAboutPanelOptions(aboutPanelOptions);
+	electron.app.showAboutPanel();
 };
 
 // TODO: Move to main
@@ -262,10 +249,8 @@ exports.aboutMenuItem = (options = {}) => {
 	// handle the macOS case here, so the user doesn't need a conditional
 	// when used in a cross-platform app
 
-	const appName = 'name' in electron.app ? electron.app.name : electron.app.getName();
-
 	return {
-		label: `${options.title} ${appName}`,
+		label: `${options.title} ${electron.app.getName()}`,
 		click() {
 			exports.showAboutWindow(options);
 		}
@@ -274,7 +259,7 @@ exports.aboutMenuItem = (options = {}) => {
 
 // TODO: Move to main
 exports.debugInfo = () => `
-${'name' in electron.app ? electron.app.name : electron.app.getName()} ${electron.app.getVersion()}
+${electron.app.getName()} ${electron.app.getVersion()}
 Electron ${exports.electronVersion}
 ${process.platform} ${os.release()}
 Locale: ${electron.app.getLocale()}
@@ -286,10 +271,8 @@ exports.appMenu = (menuItems = []) => {
 	// handle the macOS case here, so the user doesn't need a conditional
 	// when used in a cross-platform app
 
-	const appName = 'name' in electron.app ? electron.app.name : electron.app.getName();
-
 	return {
-		label: appName,
+		label: electron.app.getName(),
 		submenu: [
 			{
 				role: 'about'

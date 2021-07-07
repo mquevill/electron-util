@@ -48,7 +48,7 @@ console.log(is.macos && is.main);
 - [`aboutMenuItem()`](#aboutmenuitemoptions-linux-windows)
 - [`debugInfo()`](#debuginfo)
 - [`appMenu()`](#appmenumenuitems-macos)
-- [`openSystemPreferences()`](#opensystempreferencespanel-section-promise-macos)
+- [`openSystemPreferences()`](#opensystempreferencespane-section-promise-macos-windows)
 
 ### api
 
@@ -366,10 +366,6 @@ Shows an 'About' window. On macOS and Linux, the native 'About' window is shown,
 
 On macOS, the `icon`, `text`, `title`, and `website` options are ignored. For `icon`, it already defaults to the app icon. For `title`, you don't need it as the native about window doesn't have a title.
 
-On Linux, the `text` option is ignored.
-
-*It will show `Electron` as the app name until you build your app for production.*
-
 <img src="media/screenshot-about-window-linux.png" width="405" height="289" alt="The about window on Ubuntu">
 
 ```js
@@ -398,24 +394,24 @@ Type: `string`
 
 The copyright text.
 
+##### text
+
+Type: `string`
+
+Some additional text if needed. Shown below copyright info.
+
 ##### website <sup>*Linux*</sup>
 
 Type: `string`
 
 The URL to the app's website.
 
-##### text <sup>*Windows*</sup>
-
-Type: `string`
-
-Some additional text if needed.
-
 ##### title <sup>*Linux*</sup> <sup>*Windows*</sup>
 
 Type: `string`\
 Default: `'About'`
 
-Customizable for localization. Used in the menu item label and window title (Windows-only).
+Customizable for localization. Used in the menu item label.
 
 The app name is automatically appended at runtime.
 
@@ -492,15 +488,17 @@ const menu = Menu.buildFromTemplate([
 Menu.setApplicationMenu(menu);
 ```
 
-### openSystemPreferences(panel?, section?): Promise<void> <sup>*macOS*</sup>
+### openSystemPreferences(pane?, section?): Promise<void> <sup>*macOS*</sup> <sup>*Windows*</sup>
 
 Type: `Function`
 
-Open the System Preferences on macOS.
+Open the System Preferences on macOS and Windows 10.
 
-This method does nothing on other systems.
+This method does nothing on Linux.
 
-Optionally provide a pane and section. A list of available options can be found [here](https://github.com/sindresorhus/electron-util/blob/4215b51e741b7ea50a0637abe919e2e7d61b34ac/index.d.ts#L515-L561).
+A list of available options can be found [here](https://github.com/sindresorhus/electron-util/blob/b1deb86cf1cba9a89869b277f8dfbdc7b0ddc888/index.d.ts#L531-L743).
+
+On macOS, optionally provide a pane and section.
 
 #### pane
 
@@ -514,7 +512,7 @@ const {openSystemPreferences} = require('electron-util');
 openSystemPreferences('security');
 ```
 
-#### section
+#### section <sup>*macOS*</sup>
 
 Type: `string`
 
