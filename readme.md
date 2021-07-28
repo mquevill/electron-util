@@ -10,7 +10,7 @@ You can use this module directly in both the [main and renderer process](https:/
 $ npm install electron-util
 ```
 
-*Requires Electron 5 or later.*
+*Requires Electron 10 or later.*
 
 ## Usage
 

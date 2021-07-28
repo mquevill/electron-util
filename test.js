@@ -6,8 +6,7 @@ process.versions.chrome = '62.0.3202';
 mockRequire('electron', {
 	app: {
 		isReady: () => true
-	},
-	remote: {}
+	}
 });
 
 const {platform} = require('.');

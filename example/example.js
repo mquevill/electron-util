@@ -1,8 +1,7 @@
 'use strict';
 const path = require('path');
 const assert = require('assert');
-const {app, Menu, dialog} = require('electron');
-const {BrowserWindow} = require('@electron/remote/main');
+const {app, BrowserWindow, Menu, dialog} = require('electron');
 const {
 	openNewGitHubIssue,
 	openUrlMenuItem,
